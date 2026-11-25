@@ -88,7 +88,7 @@ h1, h2, h3 { font-family: var(--serif); margin: 0; }
 .topbtn { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.14); color: var(--paper); border-radius: 6px; padding: 4px 12px; font-size: 14px; }
 .topbtn:hover { background: rgba(255,255,255,.16); }
 
-.desk { display: grid; grid-template-columns: 220px minmax(0, 1fr) 372px; gap: 14px; padding: 12px 14px; min-height: 0; }
+.desk { display: grid; grid-template-columns: 220px minmax(0, 1fr) 400px; gap: 14px; padding: 12px 14px; min-height: 0; }
 .left, .centre, .right { min-height: 0; overflow: auto; }
 
 /* ------------------------------------------------------------------ left: the document pile */
@@ -180,6 +180,24 @@ h1, h2, h3 { font-family: var(--serif); margin: 0; }
 
 .backpanel { display: block; margin: 0 auto 10px; max-width: 760px; width: 100%; text-align: left; background: none; border: 0; color: var(--hl); font-weight: 700; padding: 2px 0; }
 
+/* document tabs: one per document on the desk, sitting on top of the paper */
+.doctabs { display: flex; gap: 4px; max-width: 760px; margin: 0 auto; padding: 0 10px; }
+.doctab {
+  position: relative; flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; text-align: left;
+  padding: 6px 12px 7px; border: 0; border-radius: 8px 8px 0 0; background: #cbbd9f; color: #4a3d31;
+  box-shadow: inset 0 -6px 8px -6px rgba(0,0,0,.25); transition: background .12s;
+}
+.doctab.look-web { background: #c9d0d8; }
+.doctab:hover:not(.on) { background: #dccfb2; }
+.doctab.look-web:hover:not(.on) { background: #dbe0e6; }
+.doctab.on { background: var(--paper); color: var(--ink); box-shadow: none; z-index: 1; }
+.doctab.look-web.on { background: #e4e7ea; }
+.doctab-who { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; opacity: .8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.doctab-title { font-weight: 700; font-size: 14px; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.doctab.has-proof::after { content: 'your proof'; position: absolute; top: 6px; right: 8px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; padding: 0 6px; border-radius: 8px; background: var(--hl); color: var(--ink); }
+.doctab.has-proof .doctab-who { padding-right: 76px; }
+.doctabs + .sheet { border-top-left-radius: 0; border-top-right-radius: 0; }
+
 /* ------------------------------------------------------------------ the board (museum panel) */
 .panel { position: relative; max-width: 780px; margin: 0 auto; padding: 22px 32px 26px; background: #1f3a33; color: #f4ecdc; border-radius: 6px; box-shadow: 0 10px 30px rgba(0,0,0,.45); border: 8px solid #6b4f36; }
 .panel-title { font-size: 28px; margin-bottom: 12px; color: #f8e7b8; }
@@ -210,7 +228,7 @@ h1, h2, h3 { font-family: var(--serif); margin: 0; }
 .pad:disabled:not(.on) { opacity: .3; }
 
 .options { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
-.option { display: flex; gap: 10px; align-items: flex-start; text-align: left; padding: 6px 10px; border-radius: 8px; border: 2px solid var(--line); background: #fff; font-size: 15px; line-height: 1.3; transition: border-color .1s, background .1s; }
+.option { display: flex; gap: 10px; align-items: flex-start; text-align: left; padding: 5px 10px; border-radius: 8px; border: 2px solid var(--line); background: #fff; font-size: 14.5px; line-height: 1.3; transition: border-color .1s, background .1s; }
 .option:hover:not(:disabled) { border-color: #b9a785; }
 .option .letter { flex: none; width: 22px; height: 22px; border-radius: 50%; background: var(--line); display: grid; place-items: center; font-weight: 700; font-size: 13px; }
 .option.on { border-color: var(--ink); background: #f6f0e2; }
@@ -226,7 +244,9 @@ h1, h2, h3 { font-family: var(--serif); margin: 0; }
 .proof.filled { border-style: solid; border-color: var(--gold); }
 .proof-label { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); font-weight: 700; }
 .proof-empty { margin: 2px 0 0; font-size: 14px; color: var(--muted); }
-.proof blockquote { margin: 4px 0 0; font-size: 15px; line-height: 1.4; }
+.proof.hinted { border-color: var(--warn); background: #fbf0dc; }
+.proof-hint { margin: 2px 0 0; font-size: 14.5px; line-height: 1.35; color: #5a3a08; }
+.proof blockquote { margin: 4px 0 0; font-size: 15px; line-height: 1.4; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
 .proof cite { display: block; font-size: 12px; color: var(--muted); font-style: normal; margin-top: 3px; }
 
 .msg { margin-top: 12px; padding: 9px 12px; border-radius: 8px; font-size: 15px; line-height: 1.4; }

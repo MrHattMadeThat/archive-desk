@@ -175,9 +175,32 @@ export function startGame(root, unit, { onExit, jump } = {}) {
   function docButton(id, list) {
     const d = docs[id];
     const b = button(`docbtn look-${d.src.look}${shown === id && !(task.centre && panelOpen) ? ' on' : ''}`);
-    b.append(el('span', 'docbtn-title', d.src.title), el('span', 'docbtn-sub', d.src.meta.by.replace(/\[\[|\]\]/g, '').split(',')[0]));
+    b.append(el('span', 'docbtn-title', d.src.title), el('span', 'docbtn-sub', whoOf(d)));
     b.onclick = () => { shown = id; panelOpen = false; refresh(); centre.scrollTop = 0; };
     list.append(b);
+  }
+
+  // who made a document, short: 'Samuel de Champlain', 'The U.S. National Park Service'
+  const whoOf = (d) => d.src.meta.by.replace(/\[\[|\]\]/g, '').split(',')[0];
+
+  // When a task puts more than one document on the desk, folder tabs on top of the paper switch between them, so the
+  // student can read one source against the other without leaving the page. A gold mark shows where their proof is.
+  function folderTabs() {
+    const row = el('div', 'doctabs');
+    row.setAttribute('role', 'tablist');
+    row.setAttribute('aria-label', 'Documents on your desk');
+    const proofDoc = sel && lookup(docs, sel)?.doc.id;
+    for (const id of task.docs) {
+      const d = docs[id];
+      const b = button(`doctab look-${d.src.look}${id === shown ? ' on' : ''}${id === proofDoc ? ' has-proof' : ''}`);
+      b.setAttribute('role', 'tab');
+      b.setAttribute('aria-selected', id === shown);
+      b.append(el('span', 'doctab-who', whoOf(d)), el('span', 'doctab-title', d.src.title));
+      if (id === proofDoc) b.title = 'Your proof is in this one';
+      b.onclick = () => { if (id === shown) return; shown = id; refresh(); centre.scrollTop = 0; };
+      row.append(b);
+    }
+    return row;
   }
 
   function renderLeft() {
@@ -213,6 +236,7 @@ export function startGame(root, unit, { onExit, jump } = {}) {
     } else if (shown) {
       centre.dataset.doc = shown;
       const onDesk = task.docs.includes(shown);
+      if (onDesk && task.docs.length > 1) centre.append(folderTabs());
       centre.append(renderDoc(docs[shown], {
         version: versions[shown],
         pointing: onDesk && task.pointing,

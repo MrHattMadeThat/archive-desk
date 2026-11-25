@@ -18,17 +18,20 @@ import { boardLine } from './text.js';
 
 const GENERIC = 'That line doesn’t prove it. Try the label at the top (who made it, and when?), or a line only someone who was there could write.';
 
-function proofSlot(ctx, prompt = 'Click the line in the document that proves it. (Or drag it here.)') {
+// A rejected line empties the slot and its hint shows in its place (st.hint), until the student picks another line.
+function proofSlot(ctx, st, prompt = 'Click the line in the document that proves it. (Or drag it here.)') {
   const slot = el('div', 'proof');
   slot.append(el('div', 'proof-label', 'Your proof'));
   const q = ctx.sel && ctx.quote(ctx.sel);
   if (q) {
+    // two lines at most (the whole line is highlighted in the document), so a long sentence can't make the card scroll
     const b = el('blockquote', null, `“${q.text}”`);
-    b.append(el('cite', null, q.doc.src.title));
-    slot.append(b);
+    b.title = q.text;
+    slot.append(b, el('cite', null, q.doc.src.title));
     slot.classList.add('filled');
   } else {
-    slot.append(el('p', 'proof-empty', prompt));
+    if (st.hint) slot.classList.add('hinted');
+    slot.append(el('p', st.hint ? 'proof-hint' : 'proof-empty', st.hint || prompt));
   }
   slot.addEventListener('dragover', (e) => { if (e.dataTransfer.types.includes('text/x-line')) { e.preventDefault(); slot.classList.add('over'); } });
   slot.addEventListener('dragleave', () => slot.classList.remove('over'));
@@ -68,14 +71,14 @@ function stamp(t, ctx) {
       st.phase = 'fix';
       st.msg = [t.wrong];
       st.tone = 'bad';
+      st.hint = null;
       ctx.setSel(null, true);
       return ctx.refresh();
     }
     if (hit) return done(st.wrongFirst ? 'red' : st.tries ? 'silver' : 'gold', [t.right]);
     st.tries++;
-    st.msg = ctx.nearHint(ctx.sel, t.near) || GENERIC;
-    st.tone = 'warn';
-    ctx.refresh();
+    st.hint = ctx.nearHint(ctx.sel, t.near) || GENERIC;
+    ctx.setSel(null);
   }
 
   function done(grade, msg) {
@@ -101,7 +104,7 @@ function stamp(t, ctx) {
         b.onclick = () => { st.stamp = k; st.fresh = true; ctx.refresh(); };
         pads.append(b);
       }
-      c.append(pads, proofSlot(ctx));
+      c.append(pads, proofSlot(ctx, st));
       if (st.phase !== 'done') {
         const go = button('go', st.phase === 'fix' ? 'Check' : 'File it');
         go.disabled = !(st.stamp && ctx.sel);
@@ -136,14 +139,14 @@ function question(t, ctx) {
       st.phase = 'fix';
       st.msg = [`Not quite. The answer is ${L[t.answer]}: ${t.options[t.answer]}`, 'Now point at the line that proves it.'];
       st.tone = 'bad';
+      st.hint = null;
       ctx.setSel(null, true);
       return ctx.refresh();
     }
     if (hit) return done(st.wrongFirst != null ? 'red' : st.tries ? 'silver' : 'gold');
     st.tries++;
-    st.msg = ctx.nearHint(ctx.sel, t.near) || (st.phase === 'fix' ? 'Not that line. Keep looking.' : 'Good answer, but that line doesn’t prove it. Find a line that does.');
-    st.tone = 'warn';
-    ctx.refresh();
+    st.hint = ctx.nearHint(ctx.sel, t.near) || (st.phase === 'fix' ? 'Not that line. Keep looking.' : 'Good answer, but that line doesn’t prove it. Find a line that does.');
+    ctx.setSel(null);
   }
 
   function done(grade) {
@@ -169,7 +172,7 @@ function question(t, ctx) {
         b.onclick = () => { st.pick = i; ctx.refresh(); };
         opts.append(b);
       });
-      c.append(opts, proofSlot(ctx));
+      c.append(opts, proofSlot(ctx, st));
       if (st.phase !== 'done') {
         const go = button('go', 'Check');
         go.disabled = st.pick == null || !ctx.sel;
@@ -201,16 +204,15 @@ function point(t, ctx) {
       return ctx.finish({ grade: st.tries ? 'silver' : 'gold' });
     }
     st.tries++;
-    st.msg = ctx.nearHint(ctx.sel, t.near) || 'Not that one. Keep looking.';
-    st.tone = 'warn';
-    ctx.refresh();
+    st.hint = ctx.nearHint(ctx.sel, t.near) || 'Not that one. Keep looking.';
+    ctx.setSel(null);
   }
   return {
     docs: [t.doc],
     get pointing() { return st.phase !== 'done'; },
     card() {
       const c = el('div', 'task task-point');
-      c.append(el('p', 'ask big', t.ask), proofSlot(ctx, 'Click the line in the document. (Or drag it here.)'));
+      c.append(el('p', 'ask big', t.ask), proofSlot(ctx, st, 'Click the line in the document. (Or drag it here.)'));
       if (st.phase !== 'done') {
         const go = button('go', 'Check');
         go.disabled = !ctx.sel;

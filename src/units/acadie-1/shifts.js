@@ -161,7 +161,7 @@ export const SHIFTS = [
       },
       {
         type: 'question', docs: ['ch-pr-winter', 'nps-portroyal'],
-        ask: 'Port Royal, the next winter. Champlain and the Park Service give different numbers of men who died. Whose number has stronger evidence behind it?',
+        ask: 'Port Royal, the next winter. Champlain and the Park Service give different numbers of dead. Whose number has stronger evidence?',
         options: ['Champlain’s. He was there and counted his own men.', 'The Park Service’s. Newer is always more correct.', 'The Park Service’s. It is a government website.', 'Neither. When sources disagree, both are useless.'],
         answer: 0,
         proof: ['ch-pr-winter#Of the 45 of us'],

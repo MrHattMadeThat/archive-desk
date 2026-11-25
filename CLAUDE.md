@@ -25,6 +25,11 @@ stops guessing, and it is the thing to protect when adding task types.
     `scripts/check.mjs` uses it too.
   - `doc.js`: draws one document (label, tabs: today's words / 1878 English / 1613 French / park's own words / page
     scans with gold bands).
+    When a task has more than one document (`docs: [...]`), `folderTabs()` in game.js puts a tab per document on top
+    of the paper (2026-11-25, the teacher asked to see both sources in the compare question); a "your proof" mark
+    shows which one holds the chosen line.
+  - A rejected proof line empties the proof box and the hint shows inside it (`st.hint`), so a wrong try never
+    makes the card longer.
   - `tasks.js`: the five task types: `stamp`, `question` (MC + proof), `point`, `catalogue`, `board`.
   - `game.js`: the desk (layout, notebook, letters, end-of-shift report with "the mail", save in localStorage).
 - `src/units/<id>/`: a unit is `sources.js` + `shifts.js` + `index.js`, registered in `src/units/index.js`. How to
